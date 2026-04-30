@@ -1,0 +1,57 @@
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
+from sqlalchemy import extract
+from datetime import date
+from typing import Optional, List
+from database.db import get_db
+from models.models import Expense, User
+from schemas.schemas import ExpenseIn, ExpenseUpdate, ExpenseOut
+from core.core import current_user
+
+router = APIRouter()
+
+def get_expense(db, user_id, expense_id):
+    exp = db.query(Expense).filter_by(id=expense_id, user_id=user_id).first()
+    if not exp:
+        raise HTTPException(404, "Expense not found")
+    return exp
+
+@router.get("/", response_model=List[ExpenseOut])
+def list_expenses(
+    month: Optional[int] = Query(None, ge=1, le=12),
+    year:  Optional[int] = None,
+    date:  Optional[date] = None,
+    db: Session = Depends(get_db),
+    user: User = Depends(current_user),
+):
+    q = db.query(Expense).filter_by(user_id=user.id)
+    if date:
+        q = q.filter(Expense.date == date)
+    elif month and year:
+        q = q.filter(
+            extract("month", Expense.date) == month,
+            extract("year",  Expense.date) == year,
+        )
+    return q.order_by(Expense.date.desc(), Expense.created_at.desc()).all()
+
+@router.post("/", response_model=ExpenseOut, status_code=201)
+def create(data: ExpenseIn, db: Session = Depends(get_db), user: User = Depends(current_user)):
+    exp = Expense(**data.model_dump(), user_id=user.id)
+    db.add(exp)
+    db.commit()
+    db.refresh(exp)
+    return exp
+
+@router.put("/{eid}", response_model=ExpenseOut)
+def update(eid: int, data: ExpenseUpdate, db: Session = Depends(get_db), user: User = Depends(current_user)):
+    exp = get_expense(db, user.id, eid)
+    for key, val in data.model_dump(exclude_unset=True).items():
+        setattr(exp, key, val)
+    db.commit()
+    db.refresh(exp)
+    return exp
+
+@router.delete("/{eid}", status_code=204)
+def delete(eid: int, db: Session = Depends(get_db), user: User = Depends(current_user)):
+    db.delete(get_expense(db, user.id, eid))
+    db.commit()
