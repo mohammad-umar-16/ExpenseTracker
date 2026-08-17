@@ -17,7 +17,7 @@ def get_expense(db, user_id, expense_id):
         raise HTTPException(404, "Expense not found")
     return exp
 
-@router.get("/", response_model=List[ExpenseOut])
+@router.get("", response_model=List[ExpenseOut])
 def list_expenses(
     month: Optional[int] = Query(None, ge=1, le=12),
     year:  Optional[int] = None,
@@ -37,10 +37,10 @@ def list_expenses(
 
 @router.post("/parse", response_model=ParseOut)
 async def parse(data: ParseIn, user: User = Depends(current_user)):
-    # user dependency enforces auth, blocks anonymous abuse of the Gemini fallback quota
-    return await parse_expense_text(data.text)
+    result = await parse_expense_text(data.text)
+    return result
 
-@router.post("/", response_model=ExpenseOut, status_code=201)
+@router.post("", response_model=ExpenseOut, status_code=201)
 def create(data: ExpenseIn, db: Session = Depends(get_db), user: User = Depends(current_user)):
     exp = Expense(**data.model_dump(), user_id=user.id)
     db.add(exp)
@@ -61,3 +61,4 @@ def update(eid: int, data: ExpenseUpdate, db: Session = Depends(get_db), user: U
 def delete(eid: int, db: Session = Depends(get_db), user: User = Depends(current_user)):
     db.delete(get_expense(db, user.id, eid))
     db.commit()
+    

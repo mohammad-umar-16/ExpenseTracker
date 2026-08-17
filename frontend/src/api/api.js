@@ -14,9 +14,9 @@ export const authMe       = ()           => req({ url: '/auth/me' });
 export const authOnboard  = (data)       => req({ method: 'post',  url: '/auth/onboarding', data });
 export const authSettings = (data)       => req({ method: 'patch', url: '/auth/settings',   data });
 
-export const expList   = (params)       => req({ url: '/expenses/', params });
+export const expList   = (params)       => req({ url: '/expenses', params });
 export const expParse  = (text)         => req({ method: 'post',   url: '/expenses/parse',  data: { text } });
-export const expCreate = (data)         => req({ method: 'post',   url: '/expenses/',        data });
+export const expCreate = (data)         => req({ method: 'post',   url: '/expenses',        data });
 export const expUpdate = (id, data)     => req({ method: 'put',    url: `/expenses/${id}`,   data });
 export const expDelete = (id)           => api.delete(`/expenses/${id}`);
 
