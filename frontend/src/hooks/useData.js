@@ -25,10 +25,11 @@ export function useDayExpenses(date) {
   const load = useCallback(() => {
     if (!date) return;
     setLoading(true);
-    expList({ date })
-      .then(res => setList(Array.isArray(res) ? res : []))
-      .catch(() => toast.error('Failed to load'))
-      .finally(() => setLoading(false));
+    // to this:
+expList({ date })
+  .then(res => setList(Array.isArray(res) ? res : []))
+  .catch(() => toast.error('Failed to load'))
+  .finally(() => setLoading(false));
   }, [date]);
 
   useEffect(load, [load]);
