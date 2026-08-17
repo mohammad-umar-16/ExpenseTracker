@@ -4,7 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import { authRegister, authLogin, authOnboard } from '../api/api';
 import { MAX_AMOUNT } from '../utils/constants';
 import { Landmark, Wallet, ArrowRight } from 'lucide-react';
+import ThemeToggle from '../components/ThemeToggle';
 import toast from 'react-hot-toast';
+
+
 
 function Field({ label, children }) {
   return (
@@ -55,6 +58,7 @@ export function AuthPage() {
 
   return (
     <div className="auth-page">
+      <div style={{ position: 'absolute', top: 20, right: 20 }}><ThemeToggle /></div>
       <div className="auth-card scale-in">
         <div className="brand">
           <span className="brand-name">Expense Tracker</span>

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Dashboard from './pages/Dashboard';
 import { AuthPage, OnboardingPage } from './pages/AuthPages';
 
@@ -47,18 +48,19 @@ function Router() {
     </Routes>
   );
 }
-
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Router />
-        <Toaster position="bottom-right" toastOptions={{
-          style: { background: 'var(--surf3)', color: 'var(--text)', border: '1px solid var(--border2)', fontFamily: 'Sora,sans-serif', fontSize: '.83rem', borderRadius: '10px' },
-          success: { iconTheme: { primary: 'var(--green)', secondary: 'var(--surf3)' } },
-          error:   { iconTheme: { primary: 'var(--red)',   secondary: 'var(--surf3)' } },
-        }} />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <Router />
+          <Toaster position="bottom-right" toastOptions={{
+            style: { background: 'var(--surf3)', color: 'var(--text)', border: '1px solid var(--border2)', fontFamily: 'Work Sans,sans-serif', fontSize: '.83rem', borderRadius: '10px' },
+            success: { iconTheme: { primary: 'var(--green)', secondary: 'var(--surf3)' } },
+            error:   { iconTheme: { primary: 'var(--red)',   secondary: 'var(--surf3)' } },
+          }} />
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

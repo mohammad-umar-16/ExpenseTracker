@@ -10,6 +10,7 @@ import { PieChartWidget, TrendChart, CategoryList } from '../components/Charts';
 import DayPanel from '../components/DayPanel';
 import { generateReport } from '../services/reportGenerator';
 import { FileBarChart, Loader2, LogOut, Lightbulb } from 'lucide-react';
+import ThemeToggle from '../components/ThemeToggle';
 
 function StatsCard({ label, value, cls, onClick }) {
   return (
@@ -116,6 +117,7 @@ export default function Dashboard() {
           <span className="brand-name">Expense Tracker</span>
         </div>
         <div className="topbar-right">
+          <ThemeToggle />
           <div className="avatar">{user?.name?.[0]?.toUpperCase()}</div>
           <span className="user-name">{user?.name}</span>
           <button className="logout-btn" onClick={handleLogout}><LogOut size={14} /> Sign out</button>
