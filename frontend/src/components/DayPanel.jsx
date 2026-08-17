@@ -67,7 +67,7 @@ function ExpenseForm({ initial, onSubmit, onCancel, loading }) {
       onSubmit({ ...f, amount: +f.amount });
     };
 
-  const applyPrefill = (p) => setF({ title: p.title, amount: p.amount, category: p.category, note: '' });
+  const applyPrefill = (p) => setF({ title: p.title, amount: p.amount, category: p.category, note: p.note || '' });
 
   return (
     <form className="exp-form" onSubmit={handleSubmit}>

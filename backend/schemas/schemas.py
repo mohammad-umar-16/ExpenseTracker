@@ -55,8 +55,10 @@ class ParseOut(BaseModel):
     title: str
     amount: float
     category: str
+    note: str = ""
     date: date
     source: str
+
 
 class CategoryTotal(BaseModel):
     category: str
