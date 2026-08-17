@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { summaryMonthly, expList, expCreate, expUpdate, expDelete } from '../api/api';
+import { summaryMonthly, summaryInsights, expList, expCreate, expUpdate, expDelete } from '../api/api';
 import toast from 'react-hot-toast';
 
 export function useSummary(month, year) {
@@ -18,6 +18,21 @@ export function useSummary(month, year) {
   return { data, loading, refresh: load };
 }
 
+export function useInsights(month, year) {
+  const [insights, setInsights] = useState([]);
+  const [loading, setLoading]   = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    summaryInsights(month, year)
+      .then(res => setInsights(Array.isArray(res?.insights) ? res.insights : []))
+      .catch(() => setInsights([]))
+      .finally(() => setLoading(false));
+  }, [month, year]);
+
+  return { insights, loading };
+}
+
 export function useDayExpenses(date) {
   const [list, setList]       = useState([]);
   const [loading, setLoading] = useState(false);
@@ -25,11 +40,10 @@ export function useDayExpenses(date) {
   const load = useCallback(() => {
     if (!date) return;
     setLoading(true);
-    // to this:
-expList({ date })
-  .then(res => setList(Array.isArray(res) ? res : []))
-  .catch(() => toast.error('Failed to load'))
-  .finally(() => setLoading(false));
+    expList({ date })
+      .then(res => setList(Array.isArray(res) ? res : []))
+      .catch(() => toast.error('Failed to load'))
+      .finally(() => setLoading(false));
   }, [date]);
 
   useEffect(load, [load]);

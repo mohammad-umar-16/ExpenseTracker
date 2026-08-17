@@ -1,6 +1,8 @@
-import os, re, json
+import os, re, json, logging
 from datetime import date
 from typing import Optional
+
+logger = logging.getLogger("parser")
 
 CATEGORIES = [
     "Food & Drinks", "Travel", "Health & Wellness",
@@ -9,7 +11,8 @@ CATEGORIES = [
 
 KEYWORD_MAP = {
     "Food & Drinks": ["swiggy", "zomato", "restaurant", "cafe", "coffee", "dinner", "lunch", "breakfast", "food", "pizza", "burger"],
-    "Travel": ["uber", "ola", "flight", "train", "bus", "cab", "taxi", "fuel", "petrol", "diesel", "irctc"],
+    "Travel": ["uber", "ola", "flight", "train", "bus", "cab", "taxi", "fuel", "petrol", "diesel", "irctc",
+               "travel", "ride", "auto", "rickshaw", "metro", "rapido"],
     "Health & Wellness": ["pharmacy", "medicine", "doctor", "hospital", "gym", "medical", "clinic"],
     "Online Subscriptions": ["netflix", "spotify", "prime", "subscription", "youtube premium", "hotstar"],
     "Shopping": ["amazon", "flipkart", "myntra", "mall", "clothes", "shoes", "shopping"],
@@ -19,7 +22,6 @@ AMOUNT_RE = re.compile(r"(?:rs\.?|inr|₹)?\s*(\d+(?:\.\d{1,2})?)", re.IGNORECAS
 
 
 def keyword_parse(text: str) -> Optional[dict]:
-    """Free, instant local match. Returns None if no category keyword found."""
     lower = text.lower()
     amount_match = AMOUNT_RE.search(text)
     if not amount_match:
@@ -46,7 +48,6 @@ def keyword_parse(text: str) -> Optional[dict]:
 
 
 async def gemini_parse(text: str) -> Optional[dict]:
-    """Fallback for text the keyword matcher couldn't confidently classify."""
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         return None
@@ -59,7 +60,7 @@ async def gemini_parse(text: str) -> Optional[dict]:
     )
     url = (
         "https://generativelanguage.googleapis.com/v1beta/models/"
-        f"gemini-2.0-flash:generateContent?key={api_key}"
+        f"gemini-2.5-flash-lite:generateContent?key={api_key}"
     )
     body = {"contents": [{"parts": [{"text": prompt}]}]}
 
@@ -77,7 +78,8 @@ async def gemini_parse(text: str) -> Optional[dict]:
         parsed["title"] = str(parsed.get("title", "Expense"))[:25]
         parsed["amount"] = float(parsed["amount"])
         return parsed
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Gemini parse failed: {type(e).__name__}: {e}")
         return None
 
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useSummary } from '../hooks/useData';
+import { useSummary, useInsights } from '../hooks/useData';
 import { authSettings } from '../api/api';
 import { fmt } from '../utils/helpers';
 import { MAX_AMOUNT } from '../utils/constants';
@@ -53,6 +53,19 @@ function SettingsModal({ current, onSave, onClose }) {
   );
 }
 
+function InsightsCard({ insights, loading }) {
+  if (loading) return <div className="card skeleton" style={{ height: 64 }} />;
+  if (!insights.length) return null;
+  return (
+    <div className="card" style={{ marginBottom: 16 }}>
+      <div className="chart-label" style={{ marginBottom: 8 }}>Insights</div>
+      <ul style={{ margin: 0, paddingLeft: 18, fontSize: '.85rem', lineHeight: 1.7, color: 'var(--text)' }}>
+        {insights.map((line, i) => <li key={i}>{line}</li>)}
+      </ul>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const today = new Date();
   const [month, setMonth] = useState(today.getMonth() + 1);
@@ -64,6 +77,7 @@ export default function Dashboard() {
   const { user, logout, refreshUser } = useAuth();
   const navigate = useNavigate();
   const { data, loading, refresh } = useSummary(month, year);
+  const { insights, loading: insightsLoading } = useInsights(month, year);
 
   const dailyMap = {};
   data?.daily_totals?.forEach(d => { dailyMap[d.date] = d; });
@@ -119,6 +133,8 @@ export default function Dashboard() {
             />
           )}
         </div>
+
+        <InsightsCard insights={insights} loading={insightsLoading} />
 
         <div className="dash-grid">
           <div className="left-col">

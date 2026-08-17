@@ -20,4 +20,5 @@ export const expCreate = (data)         => req({ method: 'post',   url: '/expens
 export const expUpdate = (id, data)     => req({ method: 'put',    url: `/expenses/${id}`,   data });
 export const expDelete = (id)           => api.delete(`/expenses/${id}`);
 
-export const summaryMonthly = (month, year) => req({ url: '/summary/monthly', params: { month, year } });
+export const summaryMonthly  = (month, year) => req({ url: '/summary/monthly',  params: { month, year } });
+export const summaryInsights = (month, year) => req({ url: '/summary/insights', params: { month, year } });
