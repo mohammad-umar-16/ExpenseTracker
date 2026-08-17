@@ -62,13 +62,17 @@ async def gemini_parse(text: str) -> Optional[dict]:
         "https://generativelanguage.googleapis.com/v1beta/models/"
         f"gemini-2.5-flash-lite:generateContent?key={api_key}"
     )
-    body = {"contents": [{"parts": [{"text": prompt}]}]}
+    body = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {"thinkingConfig": {"thinkingBudget": 0}},
+    }
 
     try:
         async with httpx.AsyncClient(timeout=8) as client:
             resp = await client.post(url, json=body)
             resp.raise_for_status()
-            raw = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
+            parts = resp.json()["candidates"][0]["content"]["parts"]
+            raw = "".join(p.get("text", "") for p in parts if not p.get("thought"))
             raw = raw.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
             parsed = json.loads(raw)
 
