@@ -20,28 +20,25 @@ class UserOut(BaseModel):
     monthly_income: float
     class Config: from_attributes = True
 
-class TokenOut(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-    user: UserOut
+MAX_AMOUNT = 1_000_000_000_000
 
 class Onboarding(BaseModel):
-    bank_balance: float = Field(..., ge=0, le=1000000000000)
-    monthly_income: float = Field(..., ge=0, le=1000000000000)
+    bank_balance: float = Field(..., ge=0, le=MAX_AMOUNT)
+    monthly_income: float = Field(..., ge=0, le=MAX_AMOUNT)
 
 class Msg(BaseModel):
     message: str
 
 class ExpenseIn(BaseModel):
     title: str = Field(..., min_length=1, max_length=25)
-    amount: float = Field(..., gt=0, le=1000000000000)
+    amount: float = Field(..., gt=0, le=MAX_AMOUNT)
     category: str
     date: date
     note: Optional[str] = None
 
 class ExpenseUpdate(BaseModel):
     title: Optional[str] = None
-    amount: Optional[float] = Field(None, gt=0, le=1000000000000)
+    amount: Optional[float] = Field(None, gt=0, le=MAX_AMOUNT)
     category: Optional[str] = None
     date: Optional[date] = None
     note: Optional[str] = None

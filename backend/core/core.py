@@ -3,21 +3,21 @@ from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from fastapi import Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, HTTPException, Request, Response
 from sqlalchemy.orm import Session
 from database.db import get_db
 from models.models import User
 
 SECRET = os.getenv("SECRET_KEY")
 if not SECRET:
-    raise RuntimeError("SECRET_KEY env var is not set")  # no weak hardcoded fallback
+    raise RuntimeError("SECRET_KEY env var is not set")
 
-ALGO     = "HS256"
-EXP_MINS = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
+ALGO       = "HS256"
+EXP_MINS   = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
+COOKIE_KEY = "access_token"
+IS_PROD    = os.getenv("ENV", "production") != "development"
 
-pwd   = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_pw(password: str) -> str:
     return pwd.hash(password)
@@ -36,7 +36,21 @@ def decode_token(token: str) -> Optional[int]:
     except (JWTError, KeyError, ValueError):
         return None
 
-def current_user(token: str = Depends(oauth), db: Session = Depends(get_db)) -> User:
+def set_auth_cookie(response: Response, uid: int) -> None:
+    token = make_token(uid)
+    response.set_cookie(
+        key=COOKIE_KEY, value=token, httponly=True,
+        secure=IS_PROD, samesite="none" if IS_PROD else "lax",
+        max_age=EXP_MINS * 60, path="/",
+    )
+
+def clear_auth_cookie(response: Response) -> None:
+    response.delete_cookie(COOKIE_KEY, path="/", samesite="none" if IS_PROD else "lax", secure=IS_PROD)
+
+def current_user(request: Request, db: Session = Depends(get_db)) -> User:
+    token = request.cookies.get(COOKIE_KEY)
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
     uid = decode_token(token)
     if not uid:
         raise HTTPException(status_code=401, detail="Invalid credentials")
