@@ -60,7 +60,7 @@ async def gemini_parse(text: str) -> Optional[dict]:
     )
     url = (
         "https://generativelanguage.googleapis.com/v1beta/models/"
-        f"gemini-2.5-flash-lite:generateContent?key={api_key}"
+        f"gemini-flash-lite-latest:generateContent?key={api_key}"
     )
     body = {
         "contents": [{"parts": [{"text": prompt}]}],

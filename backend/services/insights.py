@@ -44,7 +44,7 @@ async def _gemini_narrate(total, cats, prev_total, prev_cats) -> Optional[list[s
     )
     url = (
         "https://generativelanguage.googleapis.com/v1beta/models/"
-        f"gemini-2.5-flash-lite:generateContent?key={api_key}"
+        f"gemini-flash-lite-latest:generateContent?key={api_key}"
     )
     body = {"contents": [{"parts": [{"text": prompt}]}]}
 
