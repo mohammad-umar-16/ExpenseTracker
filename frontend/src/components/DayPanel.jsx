@@ -4,6 +4,7 @@ import { getCat, fmt, MONTHS } from '../utils/helpers';
 import { CATS } from '../utils/helpers';
 import { MAX_AMOUNT, MAX_TITLE_LEN } from '../utils/constants';
 import { expParse } from '../api/api';
+import { Pencil, Trash2, Receipt, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 function QuickAdd({ onParsed }) {
@@ -19,7 +20,7 @@ function QuickAdd({ onParsed }) {
       setText('');
       if (parsed.source === 'keyword') toast.success('Parsed instantly');
       else if (parsed.source === 'ai') toast.success('Parsed with AI');
-      else toast('Fill in the rest manually', { icon: '✏️' });
+      else toast('Fill in the rest manually', { icon: <Pencil size={15} /> });
     } catch {
       toast.error('Could not parse — try the form below');
     } finally {
@@ -28,7 +29,8 @@ function QuickAdd({ onParsed }) {
   };
 
   return (
-    <div className="quick-add" style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+    <div className="quick-add">
+      <Sparkles size={15} className="quick-add-icon" />
       <input
         className="input"
         value={text}
@@ -50,22 +52,21 @@ function ExpenseForm({ initial, onSubmit, onCancel, loading }) {
             : { title:'', amount:'', category:'Food & Drinks', note:'' }
   );
   const set = (k) => (e) => setF(p => ({ ...p, [k]: e.target.value }));
-  const handleAmount=(e)=>{
-      const val= e.target.value;
-      if (val !==''&& parseFloat(val)>MAX_AMOUNT){toast.error('Amount exceeds the maximum allowed',{
-       id: "limit-error"
-       });
-        return;
-      }
-      setF(p=>({...p,amount:val}));
+  const handleAmount = (e) => {
+    const val = e.target.value;
+    if (val !== '' && parseFloat(val) > MAX_AMOUNT) {
+      toast.error('Amount exceeds the maximum allowed', { id: "limit-error" });
+      return;
+    }
+    setF(p => ({ ...p, amount: val }));
   };
-   const handleSubmit = (e) => {
-      e.preventDefault();
-      if (f.title.trim().length > MAX_TITLE_LEN) { toast.error(`Expense name cannot exceed ${MAX_TITLE_LEN} characters`); return; }
-      if (parseFloat(f.amount) > MAX_AMOUNT) { toast.error('Amount exceeds the maximum allowed'); return; }
-      if (f.note.length > 50) { toast.error('Note cannot exceed 50 characters'); return; }
-      onSubmit({ ...f, amount: +f.amount });
-    };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (f.title.trim().length > MAX_TITLE_LEN) { toast.error(`Expense name cannot exceed ${MAX_TITLE_LEN} characters`); return; }
+    if (parseFloat(f.amount) > MAX_AMOUNT) { toast.error('Amount exceeds the maximum allowed'); return; }
+    if (f.note.length > 50) { toast.error('Note cannot exceed 50 characters'); return; }
+    onSubmit({ ...f, amount: +f.amount });
+  };
 
   const applyPrefill = (p) => setF({ title: p.title, amount: p.amount, category: p.category, note: p.note || '' });
 
@@ -99,7 +100,7 @@ function ExpenseForm({ initial, onSubmit, onCancel, loading }) {
         <div className="field">
           <label className="label">Category</label>
           <select className="input" value={f.category} onChange={set('category')}>
-            {CATS.map(c => <option key={c.id} value={c.id}>{c.icon} {c.id}</option>)}
+            {CATS.map(c => <option key={c.id} value={c.id}>{c.id}</option>)}
           </select>
         </div>
       </div>
@@ -141,7 +142,7 @@ export default function DayPanel({ dateStr, onClose, onRefresh }) {
   const doDelete = async (id) => { if (!confirm('Delete this expense?')) return; await remove(id); onRefresh(); };
 
   return (
-    <div className="overlay" >
+    <div className="overlay">
       <div className="panel scale-in">
         <div className="panel-head">
           <div className="panel-head-left">
@@ -182,7 +183,7 @@ export default function DayPanel({ dateStr, onClose, onRefresh }) {
               : list.length === 0
               ? (
                 <div className="panel-empty">
-                  <div className="panel-empty-icon">💸</div>
+                  <Receipt size={30} className="panel-empty-icon" />
                   <p>No expenses recorded</p>
                   <button className="add-first-btn" onClick={() => setMode('add')}>Add your first expense</button>
                 </div>
@@ -190,18 +191,19 @@ export default function DayPanel({ dateStr, onClose, onRefresh }) {
                 <div className="exp-list fade-in">
                   {list.map(exp => {
                     const meta = getCat(exp.category);
+                    const Icon = meta.icon;
                     return (
                       <div key={exp.id} className="exp-row">
                         <div className="exp-dot2" style={{ background: meta.color }} />
                         <div className="exp-info">
                           <div className="exp-title">{exp.title}</div>
-                          <div className="exp-cat">{meta.icon} {exp.category}</div>
+                          <div className="exp-cat"><Icon size={12} style={{ verticalAlign: '-2px', marginRight: 4 }} />{exp.category}</div>
                           {exp.note && <div className="exp-note">{exp.note}</div>}
                         </div>
                         <span className="exp-amount mono">{fmt(exp.amount)}</span>
                         <div className="exp-actions">
-                          <button className="icon-btn edit" onClick={() => { setEditing(exp); setMode('edit'); }}>✏️</button>
-                          <button className="icon-btn del"  onClick={() => doDelete(exp.id)}>🗑️</button>
+                          <button className="icon-btn edit" onClick={() => { setEditing(exp); setMode('edit'); }}><Pencil size={14} /></button>
+                          <button className="icon-btn del"  onClick={() => doDelete(exp.id)}><Trash2 size={14} /></button>
                         </div>
                       </div>
                     );

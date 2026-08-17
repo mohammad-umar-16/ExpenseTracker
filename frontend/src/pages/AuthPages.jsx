@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authRegister, authLogin, authOnboard } from '../api/api';
 import { MAX_AMOUNT } from '../utils/constants';
+import { Landmark, Wallet, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 function Field({ label, children }) {
@@ -43,7 +44,7 @@ export function AuthPage() {
     try {
       const data = await authRegister({ name: rf.name, email: rf.email, password: rf.password });
       loginSuccess(data);
-      toast.success('Account created! Welcome 🎉');
+      toast.success('Account created — welcome');
       navigate('/onboarding');
     } catch (err) {
       toast.error(err?.response?.data?.detail || 'Registration failed');
@@ -54,10 +55,8 @@ export function AuthPage() {
 
   return (
     <div className="auth-page">
-      <div className="blob blob-1"/><div className="blob blob-2"/>
       <div className="auth-card scale-in">
         <div className="brand">
-          <span className="brand-icon">◈</span>
           <span className="brand-name">Expense Tracker</span>
         </div>
         <p className="tagline">Track every rupee, effortlessly.</p>
@@ -119,8 +118,8 @@ export function AuthPage() {
 }
 
 const STEPS = [
-  { key: 'bank_balance',   emoji: '🏦', title: "What's your current bank balance?",  sub: 'Helps track how much you have after expenses.' },
-  { key: 'monthly_income', emoji: '💼', title: "What's your monthly income?",         sub: 'Used to calculate your monthly remaining budget.' },
+  { key: 'bank_balance',   Icon: Landmark, title: "What's your current bank balance?",  sub: 'Helps track how much you have after expenses.' },
+  { key: 'monthly_income', Icon: Wallet,   title: "What's your monthly income?",         sub: 'Used to calculate your monthly remaining budget.' },
 ];
 
 export function OnboardingPage() {
@@ -142,7 +141,7 @@ export function OnboardingPage() {
     try {
       await authOnboard({ bank_balance: +vals.bank_balance || 0, monthly_income: +vals.monthly_income || 0 });
       await refreshUser();
-      if (!skip) toast.success('All set! Welcome 🎉');
+      if (!skip) toast.success('All set — welcome');
       navigate('/dashboard');
     } catch {
       toast.error('Failed to save');
@@ -153,13 +152,11 @@ export function OnboardingPage() {
 
   return (
     <div className="auth-page">
-      <div className="blob blob-1"/><div className="blob blob-2"/>
       <div className="auth-card onboard-card scale-in" style={{ textAlign: 'center' }}>
         <div className="brand" style={{ justifyContent: 'center' }}>
-          <span className="brand-icon">◈</span>
           <span className="brand-name">Expense Tracker</span>
         </div>
-        <div className="greeting">Welcome, {user?.name?.split(' ')[0]} 👋</div>
+        <div className="greeting">Welcome, {user?.name?.split(' ')[0]}</div>
         <div className="intro">Just 2 quick questions to get started.</div>
 
         <div className="dots" style={{ justifyContent: 'center' }}>
@@ -169,7 +166,7 @@ export function OnboardingPage() {
         </div>
 
         <div className="step-card">
-          <div className="step-emoji">{cur.emoji}</div>
+          <cur.Icon size={26} className="step-icon" strokeWidth={1.6} />
           <div className="step-title">{cur.title}</div>
           <div className="step-sub">{cur.sub}</div>
           <div className="rupee-input">
@@ -197,8 +194,8 @@ export function OnboardingPage() {
 
         <div className="onboard-actions">
           {step > 0 && <button className="btn-ghost" onClick={() => setStep(s => s - 1)}>← Back</button>}
-          <button className="btn-primary" style={{ flex: 1 }} onClick={next} disabled={busy}>
-            {busy ? <span className="spinner"/> : step < STEPS.length - 1 ? 'Next →' : 'Get Started 🚀'}
+          <button className="btn-primary" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }} onClick={next} disabled={busy}>
+            {busy ? <span className="spinner"/> : step < STEPS.length - 1 ? <>Next <ArrowRight size={15} /></> : 'Get Started'}
           </button>
         </div>
         <button className="skip-btn" onClick={() => submit(true)} disabled={busy}>Skip for now</button>

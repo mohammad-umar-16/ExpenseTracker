@@ -32,12 +32,12 @@ export async function generateReport({ user, month, year, data, income }) {
   const avgDaily = dailyTotals.length > 0 ? Math.round(total / dailyTotals.length) : 0;
 
   const catRowsHtml = byCategory.map(c => {
-    const meta = CATS.find(x => x.id === c.category) || { icon: '📦', color: '#888' };
+    const meta = CATS.find(x => x.id === c.category) || { color: '#6B6459' };
     const pct  = total > 0 ? ((c.total / total) * 100).toFixed(1) : '0.0';
     const bar  = Math.round((c.total / total) * 100);
     return `<tr>
-      <td style="padding:11px 10px;border-bottom:1px solid #f3f4f6"><span style="margin-right:6px">${meta.icon}</span>${c.category}</td>
-      <td style="padding:11px 10px;border-bottom:1px solid #f3f4f6"><div style="background:#f0f4ff;border-radius:99px;height:8px;width:140px;overflow:hidden"><div style="width:${bar}%;height:100%;background:${meta.color||'#5b8dee'};border-radius:99px"></div></div></td>
+      <td style="padding:11px 10px;border-bottom:1px solid #D8D3C4"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:8px;vertical-align:middle;background:${meta.color||'#7A2E2E'}"></span>${c.category}</td>
+      <td style="padding:11px 10px;border-bottom:1px solid #f3f4f6"><div style="background:#EDEEE6;border-radius:99px;height:8px;width:140px;overflow:hidden"><div style="width:${bar}%;height:100%;background:${meta.color||'#5b8dee'};border-radius:99px"></div></div></td>
       <td style="padding:11px 10px;border-bottom:1px solid #f3f4f6;text-align:right;font-weight:700">${fmt(c.total)}</td>
       <td style="padding:11px 10px;border-bottom:1px solid #f3f4f6;text-align:right;color:#888;font-size:.8rem">${pct}%</td>
       <td style="padding:11px 10px;border-bottom:1px solid #f3f4f6;text-align:right">${c.count}</td>
@@ -49,22 +49,22 @@ export async function generateReport({ user, month, year, data, income }) {
     const dayTotal = dayExps.reduce((s, e) => s + e.amount, 0);
     const formatted = new Date(date + 'T00:00:00').toLocaleDateString('en-IN', { weekday:'short', day:'2-digit', month:'short', year:'numeric' });
     const expRowsHtml = dayExps.map(e => {
-      const meta = CATS.find(x => x.id === e.category) || { icon: '📦', color: '#888' };
+      const meta = CATS.find(x => x.id === e.category) || { color: '#6B6459' };
       return `<tr>
         <td style="padding:9px 12px;border-bottom:1px solid #f8f9fb">
           <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${meta.color};margin-right:8px;vertical-align:middle"></span>
           ${e.title}${e.note ? `<span style="color:#aaa;font-size:.78rem"> — ${e.note}</span>` : ''}
         </td>
         <td style="padding:9px 12px;border-bottom:1px solid #f8f9fb">
-          <span style="background:#f0f4ff;color:#3b5998;border-radius:99px;padding:2px 10px;font-size:.75rem">${meta.icon} ${e.category}</span>
+          <span style="background:#EDEEE6;color:#2B4570;border-radius:4px;padding:2px 10px;font-size:.75rem">${e.category}</span>
         </td>
         <td style="padding:9px 12px;border-bottom:1px solid #f8f9fb;text-align:right;font-weight:700">${fmt(e.amount)}</td>
       </tr>`;
     }).join('');
     return `<div style="margin-bottom:20px">
-      <div style="display:flex;justify-content:space-between;align-items:center;background:#f0f4ff;border-radius:10px;padding:10px 16px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;background:#EDEEE6;border-radius:10px;padding:10px 16px;margin-bottom:8px">
         <span style="font-weight:700;font-size:.88rem;color:#1e2a4a">${formatted}</span>
-        <span style="font-weight:800;font-size:.95rem;color:#ef4444">${fmt(dayTotal)}</span>
+        <span style="font-weight:800;font-size:.95rem;color:#7A2E2E">${fmt(dayTotal)}</span>
       </div>
       <table style="width:100%;border-collapse:collapse;font-size:.84rem">
         <thead><tr>
@@ -77,21 +77,21 @@ export async function generateReport({ user, month, year, data, income }) {
     </div>`;
   }).join('');
 
-  const remColor = remaining === null ? '#6b7280' : remaining >= 0 ? '#22c55e' : '#ef4444';
+  const remColor = remaining === null ? '#6b7280' : remaining >= 0 ? '#22c55e' : '#7A2E2E';
   const remVal   = remaining === null ? '—' : (remaining < 0 ? '-' : '') + fmt(Math.abs(remaining));
 
   const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
   <title>Expense Tracker — ${monthName} ${year}</title></head>
-  <body style="margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;background:#f0f4ff;color:#1a1a2e">
+  <body style="margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;background:#EDEEE6;color:#1a1a2e">
   <div style="max-width:860px;margin:0 auto;padding:32px 16px">
 
-    <div style="background:linear-gradient(135deg,#1e2a4a 0%,#2d3f6e 100%);border-radius:20px;padding:36px 40px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;color:#fff">
+    <div style="background:linear-gradient(135deg,#7A2E2E 0%,#5c2222 100%);border-radius:20px;padding:36px 40px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;color:#fff">
       <div>
-        <div style="font-size:1.4rem;font-weight:800;color:#7eb3ff;margin-bottom:4px">◈ Expense Tracker</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#E8C4A0;margin-bottom:4px">◈ Expense Tracker</div>
         <div style="font-size:2rem;font-weight:800;margin-bottom:4px">${monthName} ${year}</div>
-        <div style="font-size:.82rem;color:#8ca5d8">Monthly Expense Report</div>
+        <div style="font-size:.82rem;color:#D8C4A8">Monthly Expense Report</div>
       </div>
-      <div style="text-align:right;font-size:.8rem;color:#8ca5d8;line-height:1.8">
+      <div style="text-align:right;font-size:.8rem;color:#D8C4A8;line-height:1.8">
         <div style="font-weight:700;color:#fff">${user?.name || ''}</div>
         <div>Generated on</div>
         <div>${new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' })}</div>
@@ -99,41 +99,41 @@ export async function generateReport({ user, month, year, data, income }) {
     </div>
 
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px">
-      <div style="background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+      <div style="background:#F7F5EE;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06)">
         <div style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#888;margin-bottom:8px">Total Spent</div>
-        <div style="font-size:1.25rem;font-weight:800;color:#ef4444">${fmt(total)}</div>
+        <div style="font-size:1.25rem;font-weight:800;color:#7A2E2E">${fmt(total)}</div>
       </div>
-      <div style="background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+      <div style="background:#F7F5EE;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06)">
         <div style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#888;margin-bottom:8px">Monthly Income</div>
-        <div style="font-size:1.25rem;font-weight:800;color:#3b82f6">${income > 0 ? fmt(income) : '—'}</div>
+        <div style="font-size:1.25rem;font-weight:800;color:#2B4570">${income > 0 ? fmt(income) : '—'}</div>
       </div>
-      <div style="background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+      <div style="background:#F7F5EE;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06)">
         <div style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#888;margin-bottom:8px">Remaining</div>
         <div style="font-size:1.25rem;font-weight:800;color:${remColor}">${remVal}</div>
       </div>
-      <div style="background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+      <div style="background:#F7F5EE;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06)">
         <div style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#888;margin-bottom:8px">Avg / Active Day</div>
         <div style="font-size:1.25rem;font-weight:800;color:#f59e0b">${avgDaily > 0 ? fmt(avgDaily) : '—'}</div>
       </div>
     </div>
 
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px">
-      <div style="background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+      <div style="background:#F7F5EE;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06)">
         <div style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#888;margin-bottom:8px">Total Transactions</div>
-        <div style="font-size:1.25rem;font-weight:800;color:#3b82f6">${expenses.length}</div>
+        <div style="font-size:1.25rem;font-weight:800;color:#2B4570">${expenses.length}</div>
       </div>
-      <div style="background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+      <div style="background:#F7F5EE;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06)">
         <div style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#888;margin-bottom:8px">Active Days</div>
         <div style="font-size:1.25rem;font-weight:800;color:#f59e0b">${dailyTotals.length}</div>
       </div>
-      <div style="background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+      <div style="background:#F7F5EE;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06)">
         <div style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#888;margin-bottom:8px">Highest Spend Day</div>
-        <div style="font-size:1rem;font-weight:800;color:#ef4444">${topDayStr}</div>
+        <div style="font-size:1rem;font-weight:800;color:#7A2E2E">${topDayStr}</div>
       </div>
     </div>
 
-    <div style="background:#fff;border-radius:16px;padding:28px 32px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,.06)">
-      <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:#3b82f6;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #e8f0ff">📊 Spending by Category</div>
+    <div style="background:#F7F5EE;border-radius:16px;padding:28px 32px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+      <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:#7A2E2E;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #D8D3C4">Spending by Category</div>
       ${byCategory.length > 0 ? `
       <table style="width:100%;border-collapse:collapse;font-size:.86rem">
         <thead><tr>
@@ -147,15 +147,15 @@ export async function generateReport({ user, month, year, data, income }) {
       </table>` : '<div style="color:#aaa;text-align:center;padding:24px 0">No expenses recorded.</div>'}
     </div>
 
-    <div style="background:#fff;border-radius:16px;padding:28px 32px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,.06)">
-      <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:#3b82f6;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #e8f0ff">📅 Daily Expense Breakdown</div>
+    <div style="background:#F7F5EE;border-radius:16px;padding:28px 32px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,.06)">
+      <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:#7A2E2E;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #D8D3C4">Daily Expense Breakdown</div>
       ${sortedDates.length > 0 ? dailySectionHtml : '<div style="color:#aaa;text-align:center;padding:24px 0">No expenses recorded.</div>'}
     </div>
 
     <div style="text-align:center;font-size:.75rem;color:#aaa;padding:16px">Expense Tracker · Track every rupee, effortlessly.</div>
   </div></body></html>`;
 
-  toast('Generating PDF…', { icon: '⏳' });
+  toast('Generating PDF…');
 
   const iframe = document.createElement('iframe');
   iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:900px;height:1px;border:none;visibility:hidden';
@@ -177,7 +177,7 @@ export async function generateReport({ user, month, year, data, income }) {
     const canvas = await html2canvas(reportEl, {
       scale: 2,
       useCORS: true,
-      backgroundColor: '#f0f4ff',
+      backgroundColor: '#EDEEE6',
       scrollY: 0,
       windowWidth: 900,
     });

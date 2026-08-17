@@ -1,10 +1,12 @@
+import { Utensils, Plane, HeartPulse, Smartphone, ShoppingBag, Package } from 'lucide-react';
+
 export const CATS = [
-  { id: 'Food & Drinks',        icon: '🍜', color: '#ff6b6b' },
-  { id: 'Travel',               icon: '✈️', color: '#4f7cff' },
-  { id: 'Health & Wellness',    icon: '💊', color: '#2de8b0' },
-  { id: 'Online Subscriptions', icon: '📱', color: '#c77dff' },
-  { id: 'Shopping',             icon: '🛍️', color: '#ffb84f' },
-  { id: 'Other',                icon: '📦', color: '#7a85a3' },
+  { id: 'Food & Drinks',        icon: Utensils,   color: '#7A2E2E' },
+  { id: 'Travel',               icon: Plane,      color: '#2B4570' },
+  { id: 'Health & Wellness',    icon: HeartPulse, color: '#3F6C51' },
+  { id: 'Online Subscriptions', icon: Smartphone, color: '#5B4636' },
+  { id: 'Shopping',             icon: ShoppingBag, color: '#9C6B30' },
+  { id: 'Other',                icon: Package,    color: '#6B6459' },
 ];
 
 export const getCat = (id) => CATS.find(c => c.id === id) || CATS[CATS.length - 1];

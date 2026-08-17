@@ -36,15 +36,6 @@ export function PieChartWidget({ data }) {
           <Tooltip content={<Tip />} formatter={(v, n) => [fmt(v), n]} />
         </PieChart>
       </ResponsiveContainer>
-      {/*<div className="pie-legend">
-        {data.map((d, i) => (
-          <div key={i} className="pie-legend-item">
-            <span className="legend-dot" style={{ background: getCat(d.category).color }} />
-            <span className="legend-name">{d.category}</span>
-            <span className="legend-val mono">{fmt(d.total)}</span>
-          </div>
-        ))}
-      </div>*/}
     </div>
   );
 }
@@ -64,8 +55,8 @@ export function TrendChart({ dailyTotals }) {
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-          <XAxis dataKey="day" tick={{ fill:'var(--dim)', fontSize:9, fontFamily:'DM Mono' }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fill:'var(--dim)', fontSize:9, fontFamily:'DM Mono' }} axisLine={false} tickLine={false}
+          <XAxis dataKey="day" tick={{ fill:'var(--dim)', fontSize:9, fontFamily:'IBM Plex Mono' }} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fill:'var(--dim)', fontSize:9, fontFamily:'IBM Plex Mono' }} axisLine={false} tickLine={false}
             tickFormatter={v => v>=1000 ? `${(v/1000).toFixed(1)}k` : v} />
           <Tooltip content={<Tip isArea />} />
           <Area type="monotone" dataKey="total" stroke="var(--accent)" strokeWidth={2}
@@ -85,10 +76,11 @@ export function CategoryList({ categories }) {
       <div className="cat-list">
         {categories.map(c => {
           const meta = getCat(c.category);
+          const Icon = meta.icon;
           return (
             <div key={c.category} className="cat-item">
               <div className="cat-row">
-                <span className="cat-icon">{meta.icon}</span>
+                <span className="cat-icon" style={{ color: meta.color }}><Icon size={15} strokeWidth={2} /></span>
                 <span className="cat-name">{c.category}</span>
                 <span className="cat-amt mono">{fmt(c.total)}</span>
               </div>

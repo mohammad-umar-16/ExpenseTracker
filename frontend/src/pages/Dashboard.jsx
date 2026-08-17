@@ -9,6 +9,7 @@ import Calendar from '../components/Calendar';
 import { PieChartWidget, TrendChart, CategoryList } from '../components/Charts';
 import DayPanel from '../components/DayPanel';
 import { generateReport } from '../services/reportGenerator';
+import { FileBarChart, Loader2, LogOut, Lightbulb } from 'lucide-react';
 
 function StatsCard({ label, value, cls, onClick }) {
   return (
@@ -58,7 +59,9 @@ function InsightsCard({ insights, loading }) {
   if (!insights.length) return null;
   return (
     <div className="card" style={{ marginBottom: 16 }}>
-      <div className="chart-label" style={{ marginBottom: 8 }}>Insights</div>
+      <div className="chart-label" style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Lightbulb size={14} /> Insights
+      </div>
       <ul style={{ margin: 0, paddingLeft: 18, fontSize: '.85rem', lineHeight: 1.7, color: 'var(--text)' }}>
         {insights.map((line, i) => <li key={i}>{line}</li>)}
       </ul>
@@ -110,13 +113,12 @@ export default function Dashboard() {
     <div className="dash-page">
       <header className="topbar">
         <div className="topbar-left">
-          <span className="brand-icon">◈</span>
           <span className="brand-name">Expense Tracker</span>
         </div>
         <div className="topbar-right">
           <div className="avatar">{user?.name?.[0]?.toUpperCase()}</div>
           <span className="user-name">{user?.name}</span>
-          <button className="logout-btn" onClick={handleLogout}>Sign out</button>
+          <button className="logout-btn" onClick={handleLogout}><LogOut size={14} /> Sign out</button>
         </div>
       </header>
 
@@ -135,7 +137,6 @@ export default function Dashboard() {
         </div>
 
         <InsightsCard insights={insights} loading={insightsLoading} />
-
         <div className="dash-grid">
           <div className="left-col">
             {loading
@@ -161,7 +162,7 @@ export default function Dashboard() {
       )}
 
       <button className="report-fab" onClick={handleReport} disabled={generating} title="Download Monthly Report">
-        <span className="report-fab-icon">{generating ? '⏳' : '📊'}</span>
+        {generating ? <Loader2 size={16} className="spin-icon" /> : <FileBarChart size={16} />}
         <span className="report-fab-label">{generating ? 'Generating…' : 'Monthly Report'}</span>
       </button>
     </div>
