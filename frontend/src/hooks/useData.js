@@ -26,7 +26,7 @@ export function useDayExpenses(date) {
     if (!date) return;
     setLoading(true);
     expList({ date })
-      .then(setList)
+      .then(res => setList(Array.isArray(res) ? res : []))
       .catch(() => toast.error('Failed to load'))
       .finally(() => setLoading(false));
   }, [date]);
