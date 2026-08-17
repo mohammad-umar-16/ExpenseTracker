@@ -10,9 +10,8 @@ function QuickAdd({ onParsed }) {
   const [text, setText] = useState('');
   const [busy, setBusy]  = useState(false);
 
-  const run = async (e) => {
-    e.preventDefault();
-    if (!text.trim()) return;
+  const run = async () => {
+    if (!text.trim() || busy) return;
     setBusy(true);
     try {
       const parsed = await expParse(text.trim());
@@ -29,18 +28,19 @@ function QuickAdd({ onParsed }) {
   };
 
   return (
-    <form className="quick-add" onSubmit={run} style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+    <div className="quick-add" style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
       <input
         className="input"
         value={text}
         onChange={e => setText(e.target.value)}
+        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); run(); } }}
         placeholder='Try "420 on swiggy dinner"'
         maxLength={200}
       />
-      <button type="submit" className="btn-primary" disabled={busy} style={{ padding: '7px 14px', fontSize: '.8rem', whiteSpace: 'nowrap' }}>
+      <button type="button" className="btn-primary" disabled={busy} onClick={run} style={{ padding: '7px 14px', fontSize: '.8rem', whiteSpace: 'nowrap' }}>
         {busy ? <span className="spinner" /> : 'Quick Add'}
       </button>
-    </form>
+    </div>
   );
 }
 
