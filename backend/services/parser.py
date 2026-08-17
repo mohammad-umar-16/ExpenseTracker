@@ -58,7 +58,7 @@ async def gemini_parse(text: str) -> Optional[dict]:
         "Extract an expense from this text. Reply with ONLY compact JSON, no markdown, "
         f'in this exact shape: {{"title": string (max 25 chars), "amount": number, '
         f'"category": one of {CATEGORIES}, "note": string (max 50 chars, extra context '
-        'not already in the title, or empty string if none)}}. Text: "{text}"'
+        'not already in the title, or empty string if none)}}. Text: "' + text + '"'
     )
     url = (
         "https://generativelanguage.googleapis.com/v1beta/models/"
