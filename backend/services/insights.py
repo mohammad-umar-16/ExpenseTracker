@@ -59,7 +59,8 @@ async def _gemini_narrate(total, cats, prev_total, prev_cats) -> Optional[list[s
             return parsed[:3]
         return None
     except Exception as e:
-        logger.warning(f"Gemini insights failed: {type(e).__name__}: {e}")
+        detail = getattr(getattr(e, "response", None), "text", "")
+        logger.warning(f"Gemini parse failed: {type(e).__name__}: {e} | {detail}")
         return None
 
 

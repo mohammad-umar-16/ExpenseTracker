@@ -62,10 +62,7 @@ async def gemini_parse(text: str) -> Optional[dict]:
         "https://generativelanguage.googleapis.com/v1beta/models/"
         f"gemini-flash-lite-latest:generateContent?key={api_key}"
     )
-    body = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"thinkingConfig": {"thinkingBudget": 0}},
-    }
+    body = {"contents": [{"parts": [{"text": prompt}]}]}
 
     try:
         async with httpx.AsyncClient(timeout=8) as client:
@@ -82,10 +79,11 @@ async def gemini_parse(text: str) -> Optional[dict]:
         parsed["title"] = str(parsed.get("title", "Expense"))[:25]
         parsed["amount"] = float(parsed["amount"])
         return parsed
-    except Exception as e:
-        logger.warning(f"Gemini parse failed: {type(e).__name__}: {e}")
-        return None
 
+    except Exception as e:
+        detail = getattr(getattr(e, "response", None), "text", "")
+        logger.warning(f"Gemini parse failed: {type(e).__name__}: {e} | {detail}")
+        return None
 
 async def parse_expense_text(text: str) -> dict:
     result = keyword_parse(text)
