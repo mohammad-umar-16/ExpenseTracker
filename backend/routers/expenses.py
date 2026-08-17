@@ -5,8 +5,9 @@ from datetime import date
 from typing import Optional, List
 from database.db import get_db
 from models.models import Expense, User
-from schemas.schemas import ExpenseIn, ExpenseUpdate, ExpenseOut
+from schemas.schemas import ExpenseIn, ExpenseUpdate, ExpenseOut, ParseIn, ParseOut
 from core.core import current_user
+from services.parser import parse_expense_text
 
 router = APIRouter()
 
@@ -33,6 +34,11 @@ def list_expenses(
             extract("year",  Expense.date) == year,
         )
     return q.order_by(Expense.date.desc(), Expense.created_at.desc()).all()
+
+@router.post("/parse", response_model=ParseOut)
+async def parse(data: ParseIn, user: User = Depends(current_user)):
+    # user dependency enforces auth, blocks anonymous abuse of the Gemini fallback quota
+    return await parse_expense_text(data.text)
 
 @router.post("/", response_model=ExpenseOut, status_code=201)
 def create(data: ExpenseIn, db: Session = Depends(get_db), user: User = Depends(current_user)):

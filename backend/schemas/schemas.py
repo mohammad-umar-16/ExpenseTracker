@@ -2,9 +2,8 @@ from pydantic import BaseModel, EmailStr, Field
 from datetime import date, datetime
 from typing import Optional, List
 
-# Auth
 class Register(BaseModel):
-    name: str = Field(..., min_length=2,max_length=40)
+    name: str = Field(..., min_length=2, max_length=40)
     email: EmailStr
     password: str = Field(..., min_length=8, max_length=40)
 
@@ -27,23 +26,22 @@ class TokenOut(BaseModel):
     user: UserOut
 
 class Onboarding(BaseModel):
-    bank_balance: float = Field(..., ge=0,le=1000000000000)
-    monthly_income: float = Field(..., ge=0,le =1000000000000)
+    bank_balance: float = Field(..., ge=0, le=1000000000000)
+    monthly_income: float = Field(..., ge=0, le=1000000000000)
 
 class Msg(BaseModel):
     message: str
 
-#  Expenses 
 class ExpenseIn(BaseModel):
-    title: str = Field(..., min_length=1,max_length=25)
-    amount: float = Field(..., gt=0,le=1000000000000)
+    title: str = Field(..., min_length=1, max_length=25)
+    amount: float = Field(..., gt=0, le=1000000000000)
     category: str
     date: date
     note: Optional[str] = None
 
 class ExpenseUpdate(BaseModel):
     title: Optional[str] = None
-    amount: Optional[float] = Field(None, gt=0,le=1000000000000)
+    amount: Optional[float] = Field(None, gt=0, le=1000000000000)
     category: Optional[str] = None
     date: Optional[date] = None
     note: Optional[str] = None
@@ -53,7 +51,16 @@ class ExpenseOut(ExpenseIn):
     created_at: Optional[datetime] = None
     class Config: from_attributes = True
 
-#  Summary 
+class ParseIn(BaseModel):
+    text: str = Field(..., min_length=1, max_length=200)
+
+class ParseOut(BaseModel):
+    title: str
+    amount: float
+    category: str
+    date: date
+    source: str
+
 class CategoryTotal(BaseModel):
     category: str
     total: float

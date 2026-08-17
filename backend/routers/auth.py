@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database.db import get_db
@@ -6,6 +7,8 @@ from schemas.schemas import Register, Login, TokenOut, UserOut, Onboarding, Msg
 from core.core import hash_pw, verify_pw, make_token, current_user
 
 router = APIRouter()
+MAX_ATTEMPTS = 5
+LOCKOUT_MINS = 15
 
 @router.post("/register", response_model=TokenOut, status_code=201)
 def register(data: Register, db: Session = Depends(get_db)):
@@ -15,14 +18,26 @@ def register(data: Register, db: Session = Depends(get_db)):
     db.add(user)
     db.commit()
     db.refresh(user)
-    # register login
     return TokenOut(access_token=make_token(user.id), user=UserOut.model_validate(user))
 
 @router.post("/login", response_model=TokenOut)
 def login(data: Login, db: Session = Depends(get_db)):
     user = db.query(User).filter_by(email=data.email).first()
+
+    if user and user.locked_until and user.locked_until > datetime.now(timezone.utc):
+        raise HTTPException(429, "Too many failed attempts. Try again later.")
+
     if not user or not verify_pw(data.password, user.hashed_password):
+        if user:
+            user.failed_attempts += 1
+            if user.failed_attempts >= MAX_ATTEMPTS:
+                user.locked_until = datetime.now(timezone.utc) + timedelta(minutes=LOCKOUT_MINS)
+            db.commit()
         raise HTTPException(401, "Invalid email or password")
+
+    user.failed_attempts = 0
+    user.locked_until = None
+    db.commit()
     return TokenOut(access_token=make_token(user.id), user=UserOut.model_validate(user))
 
 @router.get("/me", response_model=UserOut)

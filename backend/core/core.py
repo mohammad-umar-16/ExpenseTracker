@@ -9,21 +9,22 @@ from sqlalchemy.orm import Session
 from database.db import get_db
 from models.models import User
 
-SECRET   = os.getenv("SECRET_KEY", "dxgchcjjjd")
+SECRET = os.getenv("SECRET_KEY")
+if not SECRET:
+    raise RuntimeError("SECRET_KEY env var is not set")  # no weak hardcoded fallback
+
 ALGO     = "HS256"
 EXP_MINS = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 
 pwd   = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
-# password 
 def hash_pw(password: str) -> str:
     return pwd.hash(password)
 
 def verify_pw(password: str, hashed: str) -> bool:
     return pwd.verify(password, hashed)
 
-#jwt
 def make_token(uid: int) -> str:
     exp = datetime.utcnow() + timedelta(minutes=EXP_MINS)
     return jwt.encode({"sub": str(uid), "exp": exp}, SECRET, algorithm=ALGO)
@@ -35,7 +36,6 @@ def decode_token(token: str) -> Optional[int]:
     except (JWTError, KeyError, ValueError):
         return None
 
-# auth depend
 def current_user(token: str = Depends(oauth), db: Session = Depends(get_db)) -> User:
     uid = decode_token(token)
     if not uid:
