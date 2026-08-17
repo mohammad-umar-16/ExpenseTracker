@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { authMe } from '../api/api';
+import { authMe, authLogout } from '../api/api';
 
 const Ctx = createContext(null);
 
@@ -8,15 +8,14 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!localStorage.getItem('token')) { setLoading(false); return; }
-    authMe().then(setUser).catch(() => localStorage.removeItem('token')).finally(() => setLoading(false));
+    authMe().then(setUser).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
-  const loginSuccess = ({ access_token, user }) => {
-    localStorage.setItem('token', access_token);
-    setUser(user);
+  const loginSuccess = (userData) => setUser(userData);
+  const logout = async () => {
+    try { await authLogout(); } catch {}
+    setUser(null);
   };
-  const logout      = () => { localStorage.removeItem('token'); setUser(null); };
   const refreshUser = () => authMe().then(setUser).catch(() => {});
 
   return <Ctx.Provider value={{ user, loading, loginSuccess, logout, refreshUser }}>{children}</Ctx.Provider>;

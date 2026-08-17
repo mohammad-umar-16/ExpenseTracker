@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authRegister, authLogin, authOnboard } from '../api/api';
+import { MAX_AMOUNT } from '../utils/constants';
 import toast from 'react-hot-toast';
 
-// Reusable  wrapper 
 function Field({ label, children }) {
   return (
     <div className="field">
@@ -13,16 +14,12 @@ function Field({ label, children }) {
   );
 }
 
-// authpage 
 export function AuthPage() {
   const [tab, setTab]   = useState('login');
   const [busy, setBusy] = useState(false);
   const { loginSuccess } = useAuth();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const navigate = useNavigate();
 
-
-  // Login state
   const [lf, setLf] = useState({ email: '', password: '' });
   const doLogin = async (e) => {
     e.preventDefault();
@@ -30,6 +27,7 @@ export function AuthPage() {
     try {
       const data = await authLogin(lf);
       loginSuccess(data);
+      navigate(data.is_onboarded ? '/dashboard' : '/onboarding');
     } catch (err) {
       toast.error(err?.response?.data?.detail || 'Login failed');
     } finally {
@@ -37,7 +35,6 @@ export function AuthPage() {
     }
   };
 
-  // Register state
   const [rf, setRf] = useState({ name: '', email: '', password: '', confirm: '' });
   const doRegister = async (e) => {
     e.preventDefault();
@@ -45,8 +42,9 @@ export function AuthPage() {
     setBusy(true);
     try {
       const data = await authRegister({ name: rf.name, email: rf.email, password: rf.password });
-      loginSuccess(data); 
+      loginSuccess(data);
       toast.success('Account created! Welcome 🎉');
+      navigate('/onboarding');
     } catch (err) {
       toast.error(err?.response?.data?.detail || 'Registration failed');
     } finally {
@@ -102,15 +100,12 @@ export function AuthPage() {
               <Field label="Password">
                 <input className="input" type="password" placeholder="Min 8 chars"
                   value={rf.password} onChange={e => setRf(p => ({ ...p, password: e.target.value }))}
-                  required minLength={8}   maxLength={20}/>
-            
+                  required minLength={8} maxLength={20}/>
               </Field>
               <Field label="Confirm">
                 <input className="input" type="password" placeholder="Repeat"
                   value={rf.confirm} onChange={e => setRf(p => ({ ...p, confirm: e.target.value }))}
                   required />
-              
-              
               </Field>
             </div>
             <button type="submit" className="btn-primary submit-btn" disabled={busy}>
@@ -123,8 +118,6 @@ export function AuthPage() {
   );
 }
 
-// after login income balance
-
 const STEPS = [
   { key: 'bank_balance',   emoji: '🏦', title: "What's your current bank balance?",  sub: 'Helps track how much you have after expenses.' },
   { key: 'monthly_income', emoji: '💼', title: "What's your monthly income?",         sub: 'Used to calculate your monthly remaining budget.' },
@@ -132,6 +125,7 @@ const STEPS = [
 
 export function OnboardingPage() {
   const { user, refreshUser } = useAuth();
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [vals, setVals] = useState({ bank_balance: '', monthly_income: '' });
   const [busy, setBusy] = useState(false);
@@ -149,6 +143,7 @@ export function OnboardingPage() {
       await authOnboard({ bank_balance: +vals.bank_balance || 0, monthly_income: +vals.monthly_income || 0 });
       await refreshUser();
       if (!skip) toast.success('All set! Welcome 🎉');
+      navigate('/dashboard');
     } catch {
       toast.error('Failed to save');
     } finally {
@@ -178,44 +173,25 @@ export function OnboardingPage() {
           <div className="step-title">{cur.title}</div>
           <div className="step-sub">{cur.sub}</div>
           <div className="rupee-input">
-  <span className="rupee-sign">₹</span>
-
-  <input
-    type="number"
-    min="0"
-    max="100000000000"
-    placeholder="0"
-    value={vals[cur.key] }
-
-    onChange={(e) => {
-      const value = e.target.value;
-
-      if (value === "") {
-        setVals(p => ({ ...p, [cur.key]: "" }));
-        return;
-      }
-
-      const num = Number(value);
-
-      if (num < 0) {
-        toast.error("Value cannot be negative");
-        return;
-      }
-
-      if (num > 10000000) {
-        toast.error("Maximum allowed is ₹1,00,00,00,00,000",{
-       id: "limit-error"
-       });
-        return;
-      }
-
-      setVals(p => ({ ...p, [cur.key]: value }));
-    }}
-
-    onKeyDown={(e) => e.key === "Enter" && next()}
-    autoFocus
-  />
-</div>
+            <span className="rupee-sign">₹</span>
+            <input
+              type="number"
+              min="0"
+              max={MAX_AMOUNT}
+              placeholder="0"
+              value={vals[cur.key]}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value === "") { setVals(p => ({ ...p, [cur.key]: "" })); return; }
+                const num = Number(value);
+                if (num < 0) { toast.error("Value cannot be negative"); return; }
+                if (num > MAX_AMOUNT) { toast.error("Amount exceeds the maximum allowed", { id: "limit-error" }); return; }
+                setVals(p => ({ ...p, [cur.key]: value }));
+              }}
+              onKeyDown={(e) => e.key === "Enter" && next()}
+              autoFocus
+            />
+          </div>
           <div className="hint-text">You can always update this in settings.</div>
         </div>
 

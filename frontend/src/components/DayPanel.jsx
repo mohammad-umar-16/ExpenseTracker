@@ -2,7 +2,47 @@ import { useState } from 'react';
 import { useDayExpenses } from '../hooks/useData';
 import { getCat, fmt, MONTHS } from '../utils/helpers';
 import { CATS } from '../utils/helpers';
+import { MAX_AMOUNT, MAX_TITLE_LEN } from '../utils/constants';
+import { expParse } from '../api/api';
 import toast from 'react-hot-toast';
+
+function QuickAdd({ onParsed }) {
+  const [text, setText] = useState('');
+  const [busy, setBusy]  = useState(false);
+
+  const run = async (e) => {
+    e.preventDefault();
+    if (!text.trim()) return;
+    setBusy(true);
+    try {
+      const parsed = await expParse(text.trim());
+      onParsed(parsed);
+      setText('');
+      if (parsed.source === 'keyword') toast.success('Parsed instantly');
+      else if (parsed.source === 'ai') toast.success('Parsed with AI');
+      else toast('Fill in the rest manually', { icon: '✏️' });
+    } catch {
+      toast.error('Could not parse — try the form below');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <form className="quick-add" onSubmit={run} style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+      <input
+        className="input"
+        value={text}
+        onChange={e => setText(e.target.value)}
+        placeholder='Try "420 on swiggy dinner"'
+        maxLength={200}
+      />
+      <button type="submit" className="btn-primary" disabled={busy} style={{ padding: '7px 14px', fontSize: '.8rem', whiteSpace: 'nowrap' }}>
+        {busy ? <span className="spinner" /> : 'Quick Add'}
+      </button>
+    </form>
+  );
+}
 
 function ExpenseForm({ initial, onSubmit, onCancel, loading }) {
   const [f, setF] = useState(
@@ -10,10 +50,9 @@ function ExpenseForm({ initial, onSubmit, onCancel, loading }) {
             : { title:'', amount:'', category:'Food & Drinks', note:'' }
   );
   const set = (k) => (e) => setF(p => ({ ...p, [k]: e.target.value }));
-  const MAX_AMOUNT =1000000000000;
   const handleAmount=(e)=>{
       const val= e.target.value;
-      if (val !==''&& parseFloat(val)>MAX_AMOUNT){toast.error('Amount cannot exceed 1000000000000',{
+      if (val !==''&& parseFloat(val)>MAX_AMOUNT){toast.error('Amount exceeds the maximum allowed',{
        id: "limit-error"
        });
         return;
@@ -22,40 +61,40 @@ function ExpenseForm({ initial, onSubmit, onCancel, loading }) {
   };
    const handleSubmit = (e) => {
       e.preventDefault();
-      if (f.title.trim().length > 25) { toast.error('Expense name cannot exceed 25 characters'); return; }
-      if (parseFloat(f.amount) > MAX_AMOUNT) { toast.error('Amount cannot exceed ₹10,00,00,00,00,000'); return; }
+      if (f.title.trim().length > MAX_TITLE_LEN) { toast.error(`Expense name cannot exceed ${MAX_TITLE_LEN} characters`); return; }
+      if (parseFloat(f.amount) > MAX_AMOUNT) { toast.error('Amount exceeds the maximum allowed'); return; }
       if (f.note.length > 50) { toast.error('Note cannot exceed 50 characters'); return; }
       onSubmit({ ...f, amount: +f.amount });
     };
+
+  const applyPrefill = (p) => setF({ title: p.title, amount: p.amount, category: p.category, note: '' });
+
   return (
     <form className="exp-form" onSubmit={handleSubmit}>
+      <QuickAdd onParsed={applyPrefill} />
       <div className="field">
         <label className="label">Title
-<span style={{fontWeight:400,fontSize:'.75rem',color:'var(--dim)',marginLeft:6}}>
-            {f.title.length}/25
+          <span style={{fontWeight:400,fontSize:'.75rem',color:'var(--dim)',marginLeft:6}}>
+            {f.title.length}/{MAX_TITLE_LEN}
           </span>
         </label>
-
         <input className="input" value={f.title} onChange={set('title')} placeholder="e.g. Dinner" required autoFocus
-  maxLength={25} />
+          maxLength={MAX_TITLE_LEN} />
       </div>
       <div className="field-row">
         <div className="field">
-          <label className="label">Amount (₹)
-            <span style={{fontWeight:400,fontSize:'.75rem',color:'var(--dim)'}}>MAX ₹10,00,00,00,00,000
-          </span>
-          </label>
+          <label className="label">Amount (₹)</label>
           <input
-  className="input"
-  type="number"
-  min="1"
-  step="1"
-  max={MAX_AMOUNT}
-  value={f.amount}
-  onChange={handleAmount}
-  placeholder="0"
-  required
-/>
+            className="input"
+            type="number"
+            min="1"
+            step="1"
+            max={MAX_AMOUNT}
+            value={f.amount}
+            onChange={handleAmount}
+            placeholder="0"
+            required
+          />
         </div>
         <div className="field">
           <label className="label">Category</label>
@@ -66,18 +105,16 @@ function ExpenseForm({ initial, onSubmit, onCancel, loading }) {
       </div>
       <div className="field">
         <label className="label">Note <span style={{fontWeight:400,textTransform:'none',letterSpacing:0}}>(optional)</span>
-        <span style={{fontWeight:400,fontSize:'.75rem',color: f.note.length > 50 ? 'var(--red)' : 'var(--dim)',marginLeft:6}}>
+          <span style={{fontWeight:400,fontSize:'.75rem',color: f.note.length > 50 ? 'var(--red)' : 'var(--dim)',marginLeft:6}}>
             {f.note.length}/50
-            </span>
+          </span>
         </label>
-        <textarea className="input" rows={2} value={f.note} 
-         onChange={e => {
-                    if (e.target.value.length > 50) { toast.error('Note cannot exceed 50 characters'); return; }
-                    set('note')(e);
-                  }}
-        
-        
-        placeholder="Add a note…" maxLength={50}/>
+        <textarea className="input" rows={2} value={f.note}
+          onChange={e => {
+            if (e.target.value.length > 50) { toast.error('Note cannot exceed 50 characters'); return; }
+            set('note')(e);
+          }}
+          placeholder="Add a note…" maxLength={50}/>
       </div>
       <div className="form-actions">
         <button type="button" className="btn-ghost" onClick={onCancel}>Cancel</button>
@@ -90,7 +127,7 @@ function ExpenseForm({ initial, onSubmit, onCancel, loading }) {
 }
 
 export default function DayPanel({ dateStr, onClose, onRefresh }) {
-  const [mode, setMode]       = useState('list');  // list | add | edit
+  const [mode, setMode]       = useState('list');
   const [editing, setEditing] = useState(null);
   const [saving, setSaving]   = useState(false);
   const { list, loading, add, update, remove } = useDayExpenses(dateStr);
@@ -106,7 +143,6 @@ export default function DayPanel({ dateStr, onClose, onRefresh }) {
   return (
     <div className="overlay" >
       <div className="panel scale-in">
-        {/* Header */}
         <div className="panel-head">
           <div className="panel-head-left">
             <button className="btn-ghost" style={{padding:'5px 10px',fontSize:'.78rem'}} onClick={onClose}>‹ Back</button>
@@ -127,7 +163,6 @@ export default function DayPanel({ dateStr, onClose, onRefresh }) {
           )}
         </div>
 
-        {/* Body */}
         <div className="panel-body">
           {mode === 'add' && (
             <div className="form-section">
