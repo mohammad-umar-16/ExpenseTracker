@@ -1,0 +1,26 @@
+# Expense Tracker
+
+> A full-stack personal expense tracking web app with AI-assisted expense entry. Built with React (Vite), FastAPI, and PostgreSQL.
+
+This is a private, login-gated application — there is no public content to index or browse. This file exists to describe the project for AI tools and code assistants, not as a content index.
+
+## What it does
+- Tracks daily expenses across categories (Food & Drinks, Travel, Health & Wellness, Online Subscriptions, Shopping, Other)
+- Natural-language expense entry ("420 on swiggy dinner") parsed via a keyword matcher with an LLM (Gemini) fallback
+- Receipt photo scanning — extracts expense details directly from a photo using Gemini's multimodal input
+- AI-generated monthly spending insights, with a deterministic rule-based fallback when no AI key is configured
+- Per-category budgets with progress tracking
+- Search and filtering across all recorded expenses
+- Monthly PDF report generation
+- Light/dark theme toggle
+
+## Tech stack
+- Frontend: React (Vite), react-router-dom, recharts, lucide-react, axios
+- Backend: FastAPI, SQLAlchemy, PostgreSQL (Neon), JWT auth via httpOnly cookies
+- AI: Google Gemini API (gemini-flash-lite-latest) for text/image parsing and insights
+- Testing: pytest, FastAPI TestClient, isolated SQLite test database
+- Hosting: Vercel (frontend, with an API proxy rewrite for first-party cookies) and Render (backend)
+
+## Notes for AI tools
+- This app is not intended to be crawled, scraped, or indexed — robots.txt disallows all crawling.
+- Source code and architecture decisions are available on GitHub for review; this app itself requires authentication and has no public routes worth summarizing beyond what's listed above.
