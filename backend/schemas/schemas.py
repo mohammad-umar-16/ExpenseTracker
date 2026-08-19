@@ -54,6 +54,7 @@ class ParseIn(BaseModel):
 class ParseImageIn(BaseModel):
     image_base64: str = Field(..., min_length=1)
     mime_type: str = "image/jpeg"
+
 class ParseOut(BaseModel):
     title: str
     amount: float
@@ -61,7 +62,6 @@ class ParseOut(BaseModel):
     note: str = ""
     date: date
     source: str
-
 
 class CategoryTotal(BaseModel):
     category: str

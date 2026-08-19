@@ -5,9 +5,9 @@ from datetime import date
 from typing import Optional, List
 from database.db import get_db
 from models.models import Expense, User
-from schemas.schemas import ExpenseIn, ExpenseUpdate, ExpenseOut, ParseIn, ParseOut
+from schemas.schemas import ExpenseIn, ExpenseUpdate, ExpenseOut, ParseIn, ParseImageIn, ParseOut
 from core.core import current_user
-from services.parser import parse_expense_text , parse_expense_image
+from services.parser import parse_expense_text, parse_expense_image
 
 router = APIRouter()
 
@@ -65,4 +65,3 @@ def update(eid: int, data: ExpenseUpdate, db: Session = Depends(get_db), user: U
 def delete(eid: int, db: Session = Depends(get_db), user: User = Depends(current_user)):
     db.delete(get_expense(db, user.id, eid))
     db.commit()
-    

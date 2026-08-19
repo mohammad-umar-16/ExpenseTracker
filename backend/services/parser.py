@@ -12,7 +12,7 @@ CATEGORIES = [
 KEYWORD_MAP = {
     "Food & Drinks": ["swiggy", "zomato", "restaurant", "cafe", "coffee", "dinner", "lunch", "breakfast", "food", "pizza", "burger"],
     "Travel": ["uber", "ola", "flight", "train", "bus", "cab", "taxi", "fuel", "petrol", "diesel", "irctc",
-               "travel", "ride", "auto", "rickshaw", "metro", "rapido"],
+            "travel", "ride", "auto", "rickshaw", "metro", "rapido"],
     "Health & Wellness": ["pharmacy", "medicine", "doctor", "hospital", "gym", "medical", "clinic"],
     "Online Subscriptions": ["netflix", "spotify", "prime", "subscription", "youtube premium", "hotstar"],
     "Shopping": ["amazon", "flipkart", "myntra", "mall", "clothes", "shoes", "shopping"],
