@@ -7,7 +7,7 @@ from database.db import get_db
 from models.models import Expense, User
 from schemas.schemas import ExpenseIn, ExpenseUpdate, ExpenseOut, ParseIn, ParseOut
 from core.core import current_user
-from services.parser import parse_expense_text
+from services.parser import parse_expense_text , parse_expense_image
 
 router = APIRouter()
 
@@ -39,6 +39,10 @@ def list_expenses(
 async def parse(data: ParseIn, user: User = Depends(current_user)):
     result = await parse_expense_text(data.text)
     return result
+
+@router.post("/parse-image", response_model=ParseOut)
+async def parse_image(data: ParseImageIn, user: User = Depends(current_user)):
+    return await parse_expense_image(data.image_base64, data.mime_type)
 
 @router.post("", response_model=ExpenseOut, status_code=201)
 def create(data: ExpenseIn, db: Session = Depends(get_db), user: User = Depends(current_user)):

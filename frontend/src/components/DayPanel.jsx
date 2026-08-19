@@ -6,6 +6,8 @@ import { MAX_AMOUNT, MAX_TITLE_LEN } from '../utils/constants';
 import { expParse } from '../api/api';
 import { Pencil, Trash2, Receipt, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
+import ReceiptUpload from './ReceiptUpload';
+
 
 function QuickAdd({ onParsed }) {
   const [text, setText] = useState('');
@@ -42,6 +44,7 @@ function QuickAdd({ onParsed }) {
       <button type="button" className="btn-primary" disabled={busy} onClick={run} style={{ padding: '7px 14px', fontSize: '.8rem', whiteSpace: 'nowrap' }}>
         {busy ? <span className="spinner" /> : 'Quick Add'}
       </button>
+      <ReceiptUpload onParsed={onParsed} />
     </div>
   );
 }

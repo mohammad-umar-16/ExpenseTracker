@@ -51,6 +51,9 @@ class ExpenseOut(ExpenseIn):
 class ParseIn(BaseModel):
     text: str = Field(..., min_length=1, max_length=200)
 
+class ParseImageIn(BaseModel):
+    image_base64: str = Field(..., min_length=1)
+    mime_type: str = "image/jpeg"
 class ParseOut(BaseModel):
     title: str
     amount: float
