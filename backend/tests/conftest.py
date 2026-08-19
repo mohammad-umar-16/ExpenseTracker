@@ -18,8 +18,12 @@ def setup_db():
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
+    engine.dispose()
     if os.path.exists("test.db"):
-        os.remove("test.db")
+        try:
+            os.remove("test.db")
+        except PermissionError:
+            pass
 
 @pytest.fixture
 def client():

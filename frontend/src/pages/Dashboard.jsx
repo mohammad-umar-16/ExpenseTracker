@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useSummary, useInsights } from '../hooks/useData';
+import { useSummary, useInsights, useBudgetProgress, useBudgets } from '../hooks/useData';
 import { authSettings } from '../api/api';
 import { fmt } from '../utils/helpers';
 import { MAX_AMOUNT } from '../utils/constants';
 import Calendar from '../components/Calendar';
 import { PieChartWidget, TrendChart, CategoryList } from '../components/Charts';
 import DayPanel from '../components/DayPanel';
+import SearchPanel from '../components/SearchPanel';
+import { BudgetProgressCard, ManageBudgetsModal } from '../components/Budgets';
 import { generateReport } from '../services/reportGenerator';
-import { FileBarChart, Loader2, LogOut, Lightbulb } from 'lucide-react';
+import { FileBarChart, Loader2, LogOut, Lightbulb, Search } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 
 function StatsCard({ label, value, cls, onClick }) {
@@ -76,12 +78,16 @@ export default function Dashboard() {
   const [year,  setYear]  = useState(today.getFullYear());
   const [selDay, setSelDay] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [showBudgets, setShowBudgets] = useState(false);
   const [generating, setGenerating] = useState(false);
 
   const { user, logout, refreshUser } = useAuth();
   const navigate = useNavigate();
   const { data, loading, refresh } = useSummary(month, year);
   const { insights, loading: insightsLoading } = useInsights(month, year);
+  const { progress, loading: progressLoading, refresh: refreshProgress } = useBudgetProgress(month, year);
+  const { budgets, save: saveBudget, remove: removeBudget } = useBudgets();
 
   const dailyMap = {};
   data?.daily_totals?.forEach(d => { dailyMap[d.date] = d; });
@@ -110,6 +116,17 @@ export default function Dashboard() {
     setGenerating(false);
   };
 
+  const handleBudgetSave = async (category, limit) => {
+    const ok = await saveBudget(category, limit);
+    if (ok) refreshProgress();
+    return ok;
+  };
+  const handleBudgetDelete = async (category) => {
+    const ok = await removeBudget(category);
+    if (ok) refreshProgress();
+    return ok;
+  };
+
   return (
     <div className="dash-page">
       <header className="topbar">
@@ -117,6 +134,9 @@ export default function Dashboard() {
           <span className="brand-name">Expense Tracker</span>
         </div>
         <div className="topbar-right">
+          <button className="theme-toggle" onClick={() => setShowSearch(true)} title="Search expenses">
+            <Search size={15} />
+          </button>
           <ThemeToggle />
           <div className="avatar">{user?.name?.[0]?.toUpperCase()}</div>
           <span className="user-name">{user?.name}</span>
@@ -139,6 +159,8 @@ export default function Dashboard() {
         </div>
 
         <InsightsCard insights={insights} loading={insightsLoading} />
+        <BudgetProgressCard progress={progress} loading={progressLoading} onManage={() => setShowBudgets(true)} />
+
         <div className="dash-grid">
           <div className="left-col">
             {loading
@@ -154,7 +176,16 @@ export default function Dashboard() {
         </div>
       </main>
 
-      {selDay && <DayPanel dateStr={selDay} onClose={() => setSelDay(null)} onRefresh={refresh} />}
+      {selDay && <DayPanel dateStr={selDay} onClose={() => setSelDay(null)} onRefresh={() => { refresh(); refreshProgress(); }} />}
+      {showSearch && <SearchPanel onClose={() => setShowSearch(false)} />}
+      {showBudgets && (
+        <ManageBudgetsModal
+          budgets={budgets}
+          onSave={handleBudgetSave}
+          onDelete={handleBudgetDelete}
+          onClose={() => setShowBudgets(false)}
+        />
+      )}
       {showSettings && (
         <SettingsModal
           current={{ bank_balance: balance, monthly_income: income }}

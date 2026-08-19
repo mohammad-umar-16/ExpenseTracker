@@ -127,8 +127,3 @@ export function useSearch() {
 
   return { results, loading, hasSearched, search };
 }
-
-
-
-
-
