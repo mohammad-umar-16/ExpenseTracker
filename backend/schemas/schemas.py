@@ -48,6 +48,21 @@ class ExpenseOut(ExpenseIn):
     created_at: Optional[datetime] = None
     class Config: from_attributes = True
 
+class BudgetIn(BaseModel):
+    category: str
+    monthly_limit: float = Field(..., ge=0, le=MAX_AMOUNT)
+
+class BudgetOut(BaseModel):
+    category: str
+    monthly_limit: float
+    class Config: from_attributes = True
+
+class BudgetProgress(BaseModel):
+    category: str
+    limit: float
+    spent: float
+    percentage: float
+
 class ParseIn(BaseModel):
     text: str = Field(..., min_length=1, max_length=200)
 

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import extract
+from sqlalchemy import extract, or_
 from datetime import date
 from typing import Optional, List
 from database.db import get_db
@@ -22,10 +22,17 @@ def list_expenses(
     month: Optional[int] = Query(None, ge=1, le=12),
     year:  Optional[int] = None,
     date:  Optional[date] = None,
+    search: Optional[str] = Query(None, max_length=100),
+    category: Optional[str] = None,
+    min_amount: Optional[float] = Query(None, ge=0),
+    max_amount: Optional[float] = Query(None, ge=0),
+    start_date: Optional[date] = None,
+    end_date: Optional[date] = None,
     db: Session = Depends(get_db),
     user: User = Depends(current_user),
 ):
     q = db.query(Expense).filter_by(user_id=user.id)
+
     if date:
         q = q.filter(Expense.date == date)
     elif month and year:
@@ -33,7 +40,22 @@ def list_expenses(
             extract("month", Expense.date) == month,
             extract("year",  Expense.date) == year,
         )
-    return q.order_by(Expense.date.desc(), Expense.created_at.desc()).all()
+
+    if search:
+        pattern = f"%{search}%"
+        q = q.filter(or_(Expense.title.ilike(pattern), Expense.note.ilike(pattern)))
+    if category:
+        q = q.filter(Expense.category == category)
+    if min_amount is not None:
+        q = q.filter(Expense.amount >= min_amount)
+    if max_amount is not None:
+        q = q.filter(Expense.amount <= max_amount)
+    if start_date:
+        q = q.filter(Expense.date >= start_date)
+    if end_date:
+        q = q.filter(Expense.date <= end_date)
+
+    return q.order_by(Expense.date.desc(), Expense.created_at.desc()).limit(200).all()
 
 @router.post("/parse", response_model=ParseOut)
 async def parse(data: ParseIn, user: User = Depends(current_user)):

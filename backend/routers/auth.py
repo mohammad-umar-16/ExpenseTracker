@@ -25,7 +25,11 @@ def register(data: Register, response: Response, db: Session = Depends(get_db)):
 def login(data: Login, response: Response, db: Session = Depends(get_db)):
     user = db.query(User).filter_by(email=data.email).first()
 
-    if user and user.locked_until and user.locked_until > datetime.now(timezone.utc):
+    locked_until = user.locked_until if user else None
+    if locked_until and locked_until.tzinfo is None:
+        locked_until = locked_until.replace(tzinfo=timezone.utc)
+
+    if user and locked_until and locked_until > datetime.now(timezone.utc):
         raise HTTPException(429, "Too many failed attempts. Try again later.")
 
     if not user or not verify_pw(data.password, user.hashed_password):

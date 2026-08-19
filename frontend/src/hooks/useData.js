@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { summaryMonthly, summaryInsights, expList, expCreate, expUpdate, expDelete } from '../api/api';
+import { summaryMonthly, summaryInsights, summaryBudgetProgress, expList, expCreate, expUpdate, expDelete, budgetList, budgetSet, budgetDelete } from '../api/api';
 import toast from 'react-hot-toast';
 
 export function useSummary(month, year) {
@@ -63,3 +63,72 @@ export function useDayExpenses(date) {
 
   return { list, loading, add, update, remove };
 }
+
+export function useBudgetProgress(month, year) {
+  const [progress, setProgress] = useState([]);
+  const [loading, setLoading]   = useState(false);
+
+  const load = useCallback(() => {
+    setLoading(true);
+    summaryBudgetProgress(month, year)
+      .then(res => setProgress(Array.isArray(res) ? res : []))
+      .catch(() => setProgress([]))
+      .finally(() => setLoading(false));
+  }, [month, year]);
+
+  useEffect(load, [load]);
+  return { progress, loading, refresh: load };
+}
+
+export function useBudgets() {
+  const [budgets, setBudgets] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const load = useCallback(() => {
+    setLoading(true);
+    budgetList()
+      .then(res => setBudgets(Array.isArray(res) ? res : []))
+      .catch(() => setBudgets([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(load, [load]);
+
+  const save = async (category, monthly_limit) => {
+    try { await budgetSet(category, monthly_limit); load(); return true; }
+    catch { toast.error('Failed to save budget'); return false; }
+  };
+  const remove = async (category) => {
+    try { await budgetDelete(category); load(); return true; }
+    catch { toast.error('Failed to remove budget'); return false; }
+  };
+
+  return { budgets, loading, save, remove, refresh: load };
+}
+
+export function useSearch() {
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const search = async (filters) => {
+    setLoading(true);
+    setHasSearched(true);
+    try {
+      const res = await expList(filters);
+      setResults(Array.isArray(res) ? res : []);
+    } catch {
+      toast.error('Search failed');
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { results, loading, hasSearched, search };
+}
+
+
+
+
+
