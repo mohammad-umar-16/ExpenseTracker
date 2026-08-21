@@ -29,7 +29,7 @@ const FEATURES = [
   },
 ];
 
-const STACK = ['React', 'FastAPI', 'PostgreSQL', 'Gemini AI', 'JWT Auth'];
+
 
 function PreviewCard() {
   return (
@@ -155,25 +155,6 @@ export default function LandingPage() {
                 </div>
               );
             })}
-          </div>
-        </section>
-
-        {/* Tech stack strip */}
-        <section style={{ padding: '20px 0', textAlign: 'center' }}>
-          <span className="label" style={{ display: 'block', marginBottom: 14 }}>Built with</span>
-          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 10 }}>
-            {STACK.map(s => (
-              <span
-                key={s}
-                style={{
-                  fontFamily: "'IBM Plex Mono', monospace", fontSize: '.72rem',
-                  color: 'var(--muted)', border: '1px solid var(--border)',
-                  borderRadius: 6, padding: '5px 12px', background: 'var(--surf2)',
-                }}
-              >
-                {s}
-              </span>
-            ))}
           </div>
         </section>
 
