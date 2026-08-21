@@ -18,8 +18,8 @@ function Field({ label, children }) {
   );
 }
 
-export function AuthPage() {
-  const [tab, setTab]   = useState('login');
+export function AuthPage({ initialTab = 'login' }) {
+  const [tab, setTab]   = useState(initialTab);
   const [busy, setBusy] = useState(false);
   const { loginSuccess } = useAuth();
   const navigate = useNavigate();

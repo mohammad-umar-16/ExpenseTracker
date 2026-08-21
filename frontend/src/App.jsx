@@ -3,6 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Dashboard from './pages/Dashboard';
+import LandingPage from './pages/LandingPage';
 import { AuthPage, OnboardingPage } from './pages/AuthPages';
 
 function Loading() {
@@ -41,13 +42,16 @@ function OnboardingRoute() {
 function Router() {
   return (
     <Routes>
-      <Route path="/login" element={<PublicOnlyRoute><AuthPage /></PublicOnlyRoute>} />
+      <Route path="/" element={<PublicOnlyRoute><LandingPage /></PublicOnlyRoute>} />
+      <Route path="/login" element={<PublicOnlyRoute><AuthPage initialTab="login" /></PublicOnlyRoute>} />
+      <Route path="/register" element={<PublicOnlyRoute><AuthPage initialTab="register" /></PublicOnlyRoute>} />
       <Route path="/onboarding" element={<OnboardingRoute />} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
+
 export default function App() {
   return (
     <BrowserRouter>
