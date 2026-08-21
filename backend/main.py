@@ -18,3 +18,7 @@ app.include_router(auth.router,     prefix="/api/auth")
 app.include_router(expenses.router, prefix="/api/expenses")
 app.include_router(summary.router,  prefix="/api/summary")
 app.include_router(budgets.router,  prefix="/api/budgets")
+
+@app.get("/health")
+def health():
+    return {"status": "awake"}
