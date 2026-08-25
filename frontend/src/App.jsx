@@ -24,10 +24,12 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+
 function PublicOnlyRoute({ children }) {
   const { user, loading } = useAuth();
-  if (loading) return <Loading />;
-  if (user) return <Navigate to={user.is_onboarded ? '/dashboard' : '/onboarding'} replace />;
+  // don't block the page on the auth check — show it immediately,
+  // and only redirect once we actually know the user is logged in
+  if (!loading && user) return <Navigate to={user.is_onboarded ? '/dashboard' : '/onboarding'} replace />;
   return children;
 }
 
